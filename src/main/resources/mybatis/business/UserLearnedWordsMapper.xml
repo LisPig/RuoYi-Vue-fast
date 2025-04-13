@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.project.business.mapper.UserLearnedWordsMapper">
+    
+    <resultMap type="UserLearnedWords" id="UserLearnedWordsResult">
+        <result property="Id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="learnedWords"    column="learned_words"    />
+        <result property="updatedAt"    column="updated_at"    />
+    </resultMap>
+
+    <sql id="selectUserLearnedWordsVo">
+        select id,user_id, learned_words, updated_at from UserLearnedWords
+    </sql>
+
+    <select id="selectUserLearnedWordsList" parameterType="UserLearnedWords" resultMap="UserLearnedWordsResult">
+        <include refid="selectUserLearnedWordsVo"/>
+        <where>  
+            <if test="learnedWords != null  and learnedWords != ''"> and learned_words = #{learnedWords}</if>
+            <if test="updatedAt != null "> and updated_at = #{updatedAt}</if>
+        </where>
+    </select>
+    
+    <select id="selectUserLearnedWordsByUserId" parameterType="Long" resultMap="UserLearnedWordsResult">
+        <include refid="selectUserLearnedWordsVo"/>
+        where user_id = #{userId}
+    </select>
+
+    <insert id="insertUserLearnedWords" parameterType="UserLearnedWords">
+        insert into UserLearnedWords
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="learnedWords != null and learnedWords != ''">learned_words,</if>
+            updated_at
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="learnedWords != null and learnedWords != ''">#{learnedWords},</if>
+            sysdate()
+         </trim>
+    </insert>
+
+    <update id="updateUserLearnedWords" parameterType="UserLearnedWords">
+        update UserLearnedWords
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="learnedWords != null and learnedWords != ''">learned_words = #{learnedWords},</if>
+            updated_at = sysdate()
+        </trim>
+        where user_id = #{userId}
+    </update>
+
+    <delete id="deleteUserLearnedWordsByUserId" parameterType="Long">
+        delete from UserLearnedWords where user_id = #{userId}
+    </delete>
+
+    <delete id="deleteUserLearnedWordsByUserIds" parameterType="String">
+        delete from UserLearnedWords where user_id in 
+        <foreach item="userId" collection="array" open="(" separator="," close=")">
+            #{userId}
+        </foreach>
+    </delete>
+</mapper>

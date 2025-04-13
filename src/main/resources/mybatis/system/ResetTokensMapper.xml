@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.project.system.mapper.ResetTokensMapper">
+    
+    <resultMap type="ResetTokens" id="ResetTokensResult">
+        <result property="id"    column="id"    />
+        <result property="token"    column="token"    />
+        <result property="expiryDate"    column="expiry_date"    />
+        <result property="userId"    column="user_id"    />
+    </resultMap>
+
+    <sql id="selectResetTokensVo">
+        select id, token, expiry_date, user_id from reset_tokens
+    </sql>
+
+    <select id="selectResetTokensList" parameterType="ResetTokens" resultMap="ResetTokensResult">
+        <include refid="selectResetTokensVo"/>
+        <where>  
+            <if test="token != null  and token != ''"> and token = #{token}</if>
+            <if test="expiryDate != null "> and expiry_date = #{expiryDate}</if>
+            <if test="userId != null "> and user_id = #{userId}</if>
+        </where>
+    </select>
+
+    <select id="selectResetTokensById" parameterType="Long" resultMap="ResetTokensResult">
+        <include refid="selectResetTokensVo"/>
+        where id = #{id}
+    </select>
+
+
+    <select id="findByToken" parameterType="String" resultMap="ResetTokensResult">
+        <include refid="selectResetTokensVo"/>
+        where token = #{token}
+    </select>
+
+    <insert id="insertResetTokens" parameterType="ResetTokens" useGeneratedKeys="true" keyProperty="id">
+        insert into reset_tokens
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="token != null and token != ''">token,</if>
+            <if test="expiryDate != null">expiry_date,</if>
+            <if test="userId != null">user_id,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="token != null and token != ''">#{token},</if>
+            <if test="expiryDate != null">#{expiryDate},</if>
+            <if test="userId != null">#{userId},</if>
+         </trim>
+    </insert>
+
+    <update id="updateResetTokens" parameterType="ResetTokens">
+        update reset_tokens
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="token != null and token != ''">token = #{token},</if>
+            <if test="expiryDate != null">expiry_date = #{expiryDate},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteResetTokensById" parameterType="Long">
+        delete from reset_tokens where id = #{id}
+    </delete>
+
+    <delete id="deleteResetTokensByIds" parameterType="String">
+        delete from reset_tokens where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+
+    <delete id="deleteResetTokensByToken" parameterType="String">
+        delete from reset_tokens where token  = #{token}
+    </delete>
+</mapper>

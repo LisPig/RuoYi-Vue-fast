@@ -1,5 +1,6 @@
 package com.ruoyi.framework.security.service;
 
+import com.ruoyi.project.business.service.IUsersService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,9 @@ public class UserDetailsServiceImpl implements UserDetailsService
 
     @Autowired
     private ISysUserService userService;
+
+    @Autowired
+    private IUsersService usersService;
     
     @Autowired
     private SysPasswordService passwordService;
@@ -62,4 +66,6 @@ public class UserDetailsServiceImpl implements UserDetailsService
     {
         return new LoginUser(user.getUserId(), user.getDeptId(), user, permissionService.getMenuPermission(user));
     }
+
+
 }

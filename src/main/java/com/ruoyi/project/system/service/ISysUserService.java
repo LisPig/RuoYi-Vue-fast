@@ -203,4 +203,10 @@ public interface ISysUserService
      * @return 结果
      */
     public String importUser(List<SysUser> userList, Boolean isUpdateSupport, String operName);
+
+    boolean validateToken(String token);
+
+    boolean resetPassword(String token, String newPassword);
+
+    SysUser findUserByEmail(String email);
 }

@@ -12,6 +12,8 @@ public class LoginBody
      */
     private String username;
 
+    private String email;
+
     /**
      * 用户密码
      */
@@ -35,6 +37,16 @@ public class LoginBody
     public void setUsername(String username)
     {
         this.username = username;
+    }
+
+    public String getEmail()
+    {
+        return email;
+    }
+
+    public void setEmail(String email)
+    {
+        this.email = email;
     }
 
     public String getPassword()

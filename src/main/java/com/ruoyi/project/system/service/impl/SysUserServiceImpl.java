@@ -1,9 +1,12 @@
 package com.ruoyi.project.system.service.impl;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.validation.Validator;
+
+import com.ruoyi.project.system.domain.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,11 +20,6 @@ import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.bean.BeanValidators;
 import com.ruoyi.common.utils.spring.SpringUtils;
 import com.ruoyi.framework.aspectj.lang.annotation.DataScope;
-import com.ruoyi.project.system.domain.SysPost;
-import com.ruoyi.project.system.domain.SysRole;
-import com.ruoyi.project.system.domain.SysUser;
-import com.ruoyi.project.system.domain.SysUserPost;
-import com.ruoyi.project.system.domain.SysUserRole;
 import com.ruoyi.project.system.mapper.SysPostMapper;
 import com.ruoyi.project.system.mapper.SysRoleMapper;
 import com.ruoyi.project.system.mapper.SysUserMapper;
@@ -64,6 +62,9 @@ public class SysUserServiceImpl implements ISysUserService
 
     @Autowired
     protected Validator validator;
+
+    @Autowired
+    private ResetTokensServiceImpl resetTokensService;
 
     /**
      * 根据条件分页查询用户列表
@@ -547,4 +548,43 @@ public class SysUserServiceImpl implements ISysUserService
         }
         return successMsg.toString();
     }
+
+    @Override
+    public boolean validateToken(String token) {
+        ResetTokens resetToken = resetTokensService.findByToken(token);
+
+        // 检查令牌是否存在
+        if (resetToken == null) {
+            return false;
+        }
+
+        // 检查令牌是否已过期
+        if (resetToken.getExpiryDate().before(new Date())) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean resetPassword(String token, String newPassword) {
+        ResetTokens resetToken = resetTokensService.findByToken(token);
+
+        if (resetToken != null && validateToken(token)) {
+            SysUser user = new SysUser();
+            user.setUserId(resetToken.getUserId());
+            user.setPassword(SecurityUtils.encryptPassword(newPassword)); // 假设你有一个密码编码器
+            userMapper.updateUser(user); // 假设你有一个用户仓库
+            resetTokensService.deleteResetTokensByToken(resetToken.getToken()); // 删除重置令牌，防止重复使用
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
+    public SysUser findUserByEmail(String email) {
+        return userMapper.findUserByEmail(email);
+    }
+
 }
